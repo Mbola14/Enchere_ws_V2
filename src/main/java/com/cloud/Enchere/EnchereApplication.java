@@ -48,7 +48,22 @@ public class EnchereApplication {
 				.antMatchers(HttpMethod.GET, "/encheres/{userid}/expired").permitAll()
 				.and()
 				.authorizeRequests()
-				.antMatchers(HttpMethod.POST, "/encheres/surencheres").permitAll()
+				.antMatchers(HttpMethod.GET, "/encheres/categories").permitAll()
+				.and()
+				.authorizeRequests()
+				.antMatchers(HttpMethod.GET, "/encheres/{userid}/status/{status_value}").permitAll()
+				.and()
+				.authorizeRequests()
+				.antMatchers(HttpMethod.POST, "/users/{userid}").permitAll()
+				.and()
+				.authorizeRequests()
+				.antMatchers(HttpMethod.GET, "/users/{userid}").permitAll()
+				.and()
+				.authorizeRequests()
+				.antMatchers(HttpMethod.POST, "/encheres/photos").permitAll()
+				.and()
+				.authorizeRequests()
+				.antMatchers(HttpMethod.GET, "/encheres/photos").permitAll()
 				.anyRequest().authenticated();
 			http.cors();
 		}	
@@ -60,7 +75,7 @@ public class EnchereApplication {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 WebMvcConfigurer.super.addCorsMappings(registry);
-                registry.addMapping("/**").allowedMethods("POST", "PUT", "DELETE", "OPTIONS").allowedOrigins("*").allowedHeaders("*").maxAge(-1).allowCredentials(false);
+                registry.addMapping("/**").allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS").allowedOrigins("*").allowedHeaders("*").maxAge(-1).allowCredentials(false);
             }
         };
     }

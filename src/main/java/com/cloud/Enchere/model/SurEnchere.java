@@ -17,6 +17,7 @@ public class SurEnchere {
 	public double getMontant() {
 		return montant;
 	}
+
 	public void setMontant(double montant) {
 		this.montant = montant;
 	}

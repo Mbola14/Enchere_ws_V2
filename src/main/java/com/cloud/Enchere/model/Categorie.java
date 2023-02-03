@@ -25,7 +25,6 @@ public class Categorie {
         this.id = id;
     }
 
-
     public void findById(Connection connection) throws SQLException {
         PreparedStatement stmt = null;
         ResultSet rs = null;

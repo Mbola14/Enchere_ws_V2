@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.cloud.Enchere.database.DatabaseConnection;
@@ -20,6 +19,7 @@ import com.cloud.Enchere.model.Data;
 import com.cloud.Enchere.model.Enchere;
 import com.cloud.Enchere.model.SearchModel;
 import com.cloud.Enchere.model.User;
+
 
 @Service
 public class EnchereService {
@@ -33,7 +33,7 @@ public class EnchereService {
         return enchere.findById();
     }
 
-    public Data search(SearchModel searchModel) throws Exception {
+    public Data search(SearchModel searchModel) throws ClassNotFoundException, SQLException {
         DatabaseConnection dbc = new DatabaseConnection();
         Connection connection = null;
         PreparedStatement stmt = null;
@@ -117,7 +117,7 @@ public class EnchereService {
         return data;
     }
 
-    public List<Enchere> findByUser(int userId) throws Exception {
+    public List<Enchere> findByUser(int userId) throws ClassNotFoundException, SQLException {
         List<Enchere> history_results = new ArrayList<>();
         DatabaseConnection dbc = new DatabaseConnection();
         Connection connection = null;
@@ -160,13 +160,57 @@ public class EnchereService {
         return history_results;
     }
 
-    public Enchere saveEnchere(Enchere newEnchere) throws Exception {
+    // new
+    public List<Enchere> findByUserAndStatus(int userId, int status) throws ClassNotFoundException, SQLException {
+        List<Enchere> history_results = new ArrayList<>();
+        DatabaseConnection dbc = new DatabaseConnection();
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            connection = dbc.connect();
+            stmt = connection.prepareStatement("select * from enchere_global where idutilisateur=? and status=?");
+            stmt.setInt(1, userId);
+            stmt.setInt(2, status);
+            rs = stmt.executeQuery();
+
+            while(rs.next()) {
+                Enchere e = new Enchere();
+                e.setId(rs.getInt("idenchere"));
+                e.setBeginning(rs.getTimestamp("dateheure").toLocalDateTime());
+                e.setMise_enchere(rs.getDouble("prixmiseenchere"));
+                e.setDuration(rs.getFloat("duree"));
+                e.setDescription(rs.getString("description"));
+                e.setStatus(rs.getInt("status"));
+                User user = new User();
+                user.setIdUser(rs.getInt("idutilisateur"));
+                user.setNom(rs.getString("nom"));
+                user.setPrenom(rs.getString("prenom"));
+                e.setUtilisateur(user);
+                Categorie categorie = new Categorie();
+                categorie.setId(rs.getInt("idcategorie"));
+                categorie.setNom(rs.getString("nomcategorie"));
+                e.setCategorie(categorie);
+                history_results.add(e);
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            throw e;
+        } finally {
+            if(connection != null && !connection.isClosed()) connection.close();
+            if(stmt != null && !stmt.isClosed()) stmt.close();
+            if(rs != null && !rs.isClosed()) rs.close();
+        }
+        return history_results;
+    }
+
+    public Enchere saveEnchere(Enchere newEnchere) throws ClassNotFoundException, SQLException {
         newEnchere.setBeginning(LocalDateTime.now());
         newEnchere.setStatus(1);
         return newEnchere.save();
     }
 
-    public List<Enchere> getExpiredByUser(int userId) throws Exception {
+    public List<Enchere> getExpiredByUser(int userId) throws ClassNotFoundException, SQLException {
         List<Enchere> expired = new ArrayList<>();
         DatabaseConnection dbc = new DatabaseConnection();
         Connection connection = null;
@@ -211,7 +255,7 @@ public class EnchereService {
         return expired;
     }
 
-    private void verify_expiration(Connection connection, int userId) throws Exception {
+    private void verify_expiration(Connection connection, int userId) throws ClassNotFoundException, SQLException {
         PreparedStatement stmt = null;
         ResultSet rs = null;
         
@@ -277,5 +321,33 @@ public class EnchereService {
         if(currentDateTime.equals(expTime) || currentDateTime.isAfter(expTime)) return true;
 
         return false;
+    }
+
+    // new
+    public List<Categorie> findAllCategorie() throws SQLException, ClassNotFoundException {
+        Connection connection = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        List<Categorie> all_cat = new ArrayList<Categorie>();
+        try {
+            connection = new DatabaseConnection().connect();
+            stmt = connection.prepareStatement("select * from categorie");
+            rs = stmt.executeQuery();
+
+            while(rs.next()) {
+                Categorie categorie = new Categorie();
+                categorie.setId(rs.getInt("idcategorie"));
+                categorie.setNom(rs.getString("nomcategorie"));
+                all_cat.add(categorie);
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            throw e;
+        } finally {
+            if(connection != null && !connection.isClosed()) connection.close();
+            if(stmt != null && !stmt.isClosed()) stmt.close();
+            if(rs != null && !rs.isClosed()) rs.close();
+        }
+
+        return all_cat;
     }
 }

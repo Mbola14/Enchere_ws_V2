@@ -92,9 +92,7 @@ public class SurEnchereService {
     }
 
     private void verifySelf(SurEnchere newProp) throws SelfEnchereException {
-        Integer id2 = newProp.getOwner().getIdUser();
-        Integer id = newProp.getEnchere().getUtilisateur().getIdUser();
-        if(id.equals(id2)) 
+        if(newProp.getEnchere().getUtilisateur().getIdUser().equals(newProp.getOwner().getIdUser())) 
             throw new SelfEnchereException("vous ne pouvez pas enchérir sur votre propre enchère");
     }
 }
