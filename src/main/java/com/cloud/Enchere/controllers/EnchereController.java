@@ -1,11 +1,12 @@
 package com.cloud.Enchere.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,7 +25,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class EnchereController {
     @Autowired
     private EnchereService enchereService;
@@ -32,10 +33,6 @@ public class EnchereController {
     @Autowired
     private SurEnchereService surEnchereService;
 
-    @GetMapping("encheres")
-    public List<Enchere> all_enchere() throws ClassNotFoundException, SQLException {
-        return enchereService.fetchAll();
-    }
 
     // new
     @GetMapping("encheres/{userid}/status/{status_value}")
@@ -43,43 +40,57 @@ public class EnchereController {
         return enchereService.findByUserAndStatus(userid, status);
     }
 
+    @GetMapping("encheres")
+    public List<Enchere> all_enchere() throws ClassNotFoundException, SQLException {
+        return enchereService.fetchAll();
+    }
+
+    // @GetMapping("categories")
+    // public List<Categorie> all_categorie() throws ClassNotFoundException, SQLException {
+
+    // }
+
     @GetMapping("encheres/{enchereid}") 
     public Enchere get_enchere_by_id(@PathVariable("enchereid") int id) throws ClassNotFoundException, SQLException {
         return enchereService.fetchById(id);
     }
 
     @PostMapping("encheres/surencheres")
-    public Data rencherir(@RequestBody SurEnchere surEnchere) throws ClassNotFoundException, SQLException {
+    public ResponseEntity<Data> rencherir(@RequestBody SurEnchere surEnchere) throws ClassNotFoundException, SQLException {
         Data data = null;
         try {
+            System.out.println("sousous");
 			surEnchereService.rencherir(surEnchere);
+            data = new Data();
+            data.setResult("coucou");
 		} catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
 			throw e;
 		} catch (SurEnchereMontantException | NotEnoughSoldException | SelfEnchereException e) {
+            e.printStackTrace();
             data = new Data();
 			data.setException(e.getMessage());
 		}
-
-        return data;
+        return new ResponseEntity<Data>(data, HttpStatus.OK);
     }
 
     @PostMapping("encheres/search")
-    public Data search(@RequestBody SearchModel searchModel) throws ClassNotFoundException, SQLException {
+    public Data search(@RequestBody SearchModel searchModel) throws Exception {
         return enchereService.search(searchModel);
     }
 
     @GetMapping("encheres/{userid}/history")
-    public List<Enchere> findHistory(@PathVariable("userid") int userId) throws ClassNotFoundException, SQLException {
+    public List<Enchere> findHistory(@PathVariable("userid") int userId) throws Exception {
         return enchereService.findByUser(userId);
     }
 
     @PostMapping("encheres")
-    public Enchere saveEnchere(@RequestBody Enchere newEnchere) throws ClassNotFoundException, SQLException {
+    public Enchere saveEnchere(@RequestBody Enchere newEnchere) throws Exception {
         return enchereService.saveEnchere(newEnchere);
     }
 
     @GetMapping("encheres/{userid}/expired")
-    public List<Enchere> getExpired(@PathVariable("userid") int userid) throws ClassNotFoundException, SQLException {
+    public List<Enchere> getExpired(@PathVariable("userid") int userid) throws Exception {
         return enchereService.getExpiredByUser(userid);
     }
 
@@ -87,5 +98,6 @@ public class EnchereController {
     @GetMapping("encheres/categories")
     public List<Categorie> getCategorie() throws ClassNotFoundException, SQLException {
         return enchereService.findAllCategorie();
+    }
     }
 }
