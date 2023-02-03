@@ -99,5 +99,4 @@ public class EnchereController {
     public List<Categorie> getCategorie() throws ClassNotFoundException, SQLException {
         return enchereService.findAllCategorie();
     }
-    }
 }

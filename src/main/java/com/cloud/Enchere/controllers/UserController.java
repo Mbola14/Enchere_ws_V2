@@ -28,7 +28,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class UserController {
 
 	@Autowired
@@ -78,12 +78,12 @@ public class UserController {
 	}
 
 	@PostMapping("users/recharge")
-	public Recharge recharger(@RequestBody Recharge recharge) throws SQLException, ClassNotFoundException {
+	public Recharge recharger(@RequestBody Recharge recharge) throws Exception {
 		return compteService.demande_recharge(recharge);
 	}
 
 	@PostMapping("users/register")
-	public User sign_up(@RequestBody User newUser) throws SQLException, ClassNotFoundException {
+	public User sign_up(@RequestBody User newUser) throws Exception {
 		return usersService.sign_up(newUser);
 	}
 
