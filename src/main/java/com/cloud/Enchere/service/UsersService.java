@@ -23,16 +23,7 @@ public class UsersService {
         return curr_user;
     }
 
-    public User authenticate(Connection connection, User auth) throws AuthenticationException, ClassNotFoundException, SQLException {
-        User curr_user = User.findUserByEmailAndAndPassword(connection, auth.getUsername(), DigestUtils.md5DigestAsHex(auth.getPassword().getBytes()));
-        if(curr_user == null) {
-            throw new AuthenticationException("username or password incorrect");
-        }
-
-        return curr_user;
-    }
-
-    public User sign_up(User newUser) throws SQLException, ClassNotFoundException {
+    public User sign_up(User newUser) throws Exception {
         newUser.setPassword(DigestUtils.md5DigestAsHex(newUser.getPassword().getBytes()));
         DatabaseConnection dbc = new DatabaseConnection();
         Connection connection = null;

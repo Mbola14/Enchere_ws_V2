@@ -103,7 +103,6 @@ public class Enchere {
                 User user = new User();
                 user.setIdUser(rs.getInt("idutilisateur"));
                 user.findById(connection);
-                user.setPassword(null);
                 e.setUtilisateur(user);
                 Categorie cat = new Categorie();
                 cat.setId(rs.getInt("idcategorie"));

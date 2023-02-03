@@ -12,7 +12,7 @@ import com.cloud.Enchere.model.Recharge;
 
 @Service
 public class CompteService {
-    public Recharge demande_recharge(Recharge recharge) throws SQLException, ClassNotFoundException {
+    public Recharge demande_recharge(Recharge recharge) throws Exception {
         DatabaseConnection dbc = new DatabaseConnection();
         Connection connection = null;
         PreparedStatement stmt = null;
